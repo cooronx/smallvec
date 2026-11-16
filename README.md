@@ -57,6 +57,7 @@ v.sort();
 - `defmt`: implements `defmt::Format` for SmallVec
 - `encase`: implements encasing as a runtime-sized array
 - `equivalent`: implements `equivalent::Equivalent` for `SmallVec`
+- `heapless`: implements conversions and comparisons with `heapless::Vec` and `heapless::Deque`
 - `internals`: exports through the public API `LocatedLength` and `RawSmallVec`
 - `malloc-size-of`: implements `MallocSizeOf` and `MallocShallowSizeOf`
 - `may-dangle` (nightly): allows `SmallVec` to contain references that may

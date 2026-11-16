@@ -1,5 +1,11 @@
 #[cfg(feature = "arrayvec")]
 use arrayvec::ArrayVec;
+#[cfg(feature = "heapless")]
+use heapless::{
+    Deque as HeaplessDeque,
+    LenType,
+    Vec as HeaplessVec
+};
 #[cfg(feature = "tinyvec")]
 use tinyvec::{
     Array,
@@ -139,6 +145,58 @@ impl<Item, const INLINE: usize, const LENGTH: usize, Heap: Allocator>
             array.set_len(length);
         }
         Ok(array)
+    }
+}
+
+#[cfg(feature = "heapless")]
+impl<Item, const INLINE: usize, const LENGTH: usize, Len: LenType>
+    From<HeaplessVec<Item, LENGTH, Len>> for SmallVec<Item, INLINE, Global>
+{
+    fn from(vector: HeaplessVec<Item, LENGTH, Len>) -> Self {
+        let mut smallvec = Self::with_capacity(vector.len());
+        smallvec.extend(vector);
+        smallvec
+    }
+}
+#[cfg(feature = "heapless")]
+impl<Item, const INLINE: usize, const LENGTH: usize, Len: LenType, Heap: Allocator>
+    TryFrom<SmallVec<Item, INLINE, Heap>> for HeaplessVec<Item, LENGTH, Len>
+{
+    type Error = SmallVec<Item, INLINE, Heap>;
+
+    fn try_from(smallvec: SmallVec<Item, INLINE, Heap>) -> Result<Self, Self::Error> {
+        if smallvec.len() > LENGTH {
+            return Err(smallvec);
+        }
+        let mut vector = Self::new();
+        vector.extend(smallvec);
+        Ok(vector)
+    }
+}
+
+#[cfg(feature = "heapless")]
+impl<Item, const INLINE: usize, const LENGTH: usize> From<HeaplessDeque<Item, LENGTH>>
+    for SmallVec<Item, INLINE, Global>
+{
+    fn from(deque: HeaplessDeque<Item, LENGTH>) -> Self {
+        let mut smallvec = Self::with_capacity(deque.len());
+        smallvec.extend(deque);
+        smallvec
+    }
+}
+#[cfg(feature = "heapless")]
+impl<Item, const INLINE: usize, const LENGTH: usize, Heap: Allocator>
+    TryFrom<SmallVec<Item, INLINE, Heap>> for HeaplessDeque<Item, LENGTH>
+{
+    type Error = SmallVec<Item, INLINE, Heap>;
+
+    fn try_from(smallvec: SmallVec<Item, INLINE, Heap>) -> Result<Self, Self::Error> {
+        if smallvec.len() > LENGTH {
+            return Err(smallvec);
+        }
+        let mut deque = Self::new();
+        deque.extend(smallvec);
+        Ok(deque)
     }
 }
 
