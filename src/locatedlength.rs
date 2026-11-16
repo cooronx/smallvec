@@ -64,6 +64,10 @@ impl<Item> LocatedLength<Item> {
     const SHIFT: u32 = (size_of::<Item>() != 0) as u32;
     const TAG: usize = Self::SHIFT as usize;
 
+    /// # Safety
+    ///
+    /// For non-ZST `Item`, `length` must not exceed `isize::MAX`.
+    /// For ZST `Item`, `spilled` must be `false`.
     #[inline(always)]
     pub const fn new(length: usize, spilled: bool) -> Self {
         Self(
@@ -91,7 +95,8 @@ impl<Item> LocatedLength<Item> {
 
     /// # Safety
     ///
-    /// current length+n must be smaller than MAX_LEN on 64-bit target
+    /// On 64-bit targets, `self.len() + n` must not overflow and must not
+    /// exceed `isize::MAX` for non-ZST `Item`, or `usize::MAX` for ZST `Item`.
     #[inline(always)]
     pub const unsafe fn add(&mut self, n: usize) {
         #[cfg(not(target_pointer_width = "64"))]
