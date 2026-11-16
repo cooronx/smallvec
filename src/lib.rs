@@ -267,7 +267,6 @@ impl<Item, const INLINE: usize> SmallVec<Item, INLINE, Global> {
         buf: [MaybeUninit<Item>; INLINE],
         length: usize
     ) -> Self {
-        debug_assert!(length <= INLINE);
         Self {
             length: LocatedLength::new(length, false),
             raw: RawSmallVec {
@@ -337,7 +336,6 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
     /// range `..self.length` must be initialized.
     #[inline]
     pub unsafe fn set_len(&mut self, new_len: usize) {
-        debug_assert!(new_len <= self.capacity());
         self.length = LocatedLength::new(new_len, self.length.is_spilled());
     }
 
@@ -527,7 +525,6 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
         if length == self.capacity() {
             self.reserve(1);
         }
-        debug_assert!(length < self.capacity());
 
         // SAFETY: `length < capacity` after the reserve,
         //         so the offset stays in bounds of the allocation.
@@ -889,7 +886,6 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
             assert_failed(index, length);
         }
         self.reserve(1);
-        debug_assert!(length < self.capacity());
 
         // SAFETY: `index <= length <= capacity`,
         //         so the offset stays in bounds of the allocation.

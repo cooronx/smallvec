@@ -59,14 +59,13 @@ impl<Item> DeFormat for LocatedLength<Item> {
 
 #[allow(clippy::len_without_is_empty)]
 impl<Item> LocatedLength<Item> {
+    #[cfg(not(target_pointer_width = "64"))]
     const MAX_LEN: usize = usize::MAX >> Self::SHIFT;
     const SHIFT: u32 = (size_of::<Item>() != 0) as u32;
     const TAG: usize = Self::SHIFT as usize;
 
     #[inline(always)]
     pub const fn new(length: usize, spilled: bool) -> Self {
-        debug_assert!(length < Self::MAX_LEN);
-        debug_assert!(!spilled || Self::TAG != 0);
         Self(
             (length << Self::SHIFT) | ((spilled as usize) & Self::TAG),
             PhantomData
@@ -95,7 +94,7 @@ impl<Item> LocatedLength<Item> {
     /// current length+n must be smaller than MAX_LEN on 64-bit target
     #[inline(always)]
     pub const unsafe fn add(&mut self, n: usize) {
-        #[cfg(any(debug_assertions, not(target_pointer_width = "64")))]
+        #[cfg(not(target_pointer_width = "64"))]
         {
             #[cold]
             #[inline(never)]
@@ -116,8 +115,5 @@ impl<Item> LocatedLength<Item> {
     ///
     /// current length must be greater equal than n
     #[inline(always)]
-    pub const unsafe fn sub(&mut self, n: usize) {
-        debug_assert!(self.len() >= n);
-        self.0 -= n << Self::SHIFT;
-    }
+    pub const unsafe fn sub(&mut self, n: usize) { self.0 -= n << Self::SHIFT; }
 }

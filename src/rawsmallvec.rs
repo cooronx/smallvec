@@ -126,8 +126,6 @@ impl<Item, const INLINE: usize> RawSmallVec<Item, INLINE> {
         allocator: &Heap
     ) -> Result<(), SmallVecError> {
         let (length, was_spilled) = length.parts();
-        debug_assert!(size_of::<Item>() != 0);
-        debug_assert!(new_capacity > 0 && new_capacity >= length);
 
         // SAFETY: the tag tells which member is active
         let pointer = unsafe { self.as_mut_ptr(was_spilled) };

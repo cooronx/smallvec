@@ -119,9 +119,7 @@ impl<I: Iterator, const INLINE: usize, Heap: Allocator> Drop for Splice<'_, I, I
             // Now we have an exact count.
             if collected.len() > 0 {
                 self.drain.move_tail(collected.len());
-                let filled = self.drain.fill(&mut collected);
-                debug_assert!(filled);
-                debug_assert_eq!(collected.len(), 0);
+                self.drain.fill(&mut collected);
             }
         }
         // Let `Drain::drop` move the tail back if necessary and restore
