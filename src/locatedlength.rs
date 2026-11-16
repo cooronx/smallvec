@@ -64,8 +64,6 @@ impl<Item> LocatedLength<Item> {
     const SHIFT: u32 = (size_of::<Item>() != 0) as u32;
     const TAG: usize = Self::SHIFT as usize;
 
-    /// # Safety
-    ///
     /// For non-ZST `Item`, `length` must not exceed `isize::MAX`.
     /// For ZST `Item`, `spilled` must be `false`.
     #[inline(always)]
